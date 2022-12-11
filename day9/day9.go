@@ -3,19 +3,20 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
-	"sort"
 	"strconv"
+	"strings"
 )
 
-type Tree struct {
-	height  int
-	visible bool
+type Position struct {
+	x int
+	y int
 }
 
 func findMarker(part int) int {
-	readFile, err := os.Open("day9_input.txt")
-	// readFile, err := os.Open("day9_input_ex.txt")
+	// readFile, err := os.Open("day9_input.txt")
+	readFile, err := os.Open("day9_input_ex2.txt")
 
 	if err != nil {
 		fmt.Println(err)
@@ -30,168 +31,237 @@ func findMarker(part int) int {
 
 	readFile.Close()
 
-	numTreesVisible := 0
-	maxScenicScore := 0
+	tailPosVisitedTotal := 0
 
-	// Create the tree array
-	var treeArray [99][99]Tree
-	// var treeArray [5][5]Tree
-	rowNum := 0
+	// Track the positions tail has been
+	// var tailPositions []Position
+	tailPositions := make(map[string]bool)
+
+	// headPosition := Position{x: 0, y: 0}
+	// tailPosition := Position{x: 0, y: 0}
+	allTailPositions := []Position{{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}}
+
+	// fmt.Println("TAIL POS: ", tailPosition.x, " ", tailPosition.y)
+	tailPositions["0_0"] = true
+	tailPosVisitedTotal++
 	for _, line := range fileLines {
-		for idx, e := range line {
-			treeHeight, _ := strconv.Atoi(string(e))
-			tree := Tree{height: treeHeight, visible: false}
-			treeArray[rowNum][idx] = tree
+		vals := strings.Split(line, " ")
+		direction := vals[0]
+		numSteps, _ := strconv.Atoi(vals[1])
+		switch direction {
+		case "U":
+			fmt.Println("MOVE UP: ", numSteps)
+			for i := 0; i < numSteps; i++ {
+				allTailPositions[0].y++
+				for j := 1; j < len(allTailPositions); j++ {
+					tailMoved := false
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 &&
+						math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						allTailPositions[j].x = (allTailPositions[j-1].x + allTailPositions[j].x) / 2
+						allTailPositions[j].y = (allTailPositions[j-1].y + allTailPositions[j].y) / 2
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 {
+						if allTailPositions[j].y < allTailPositions[j-1].y {
+							allTailPositions[j].y++
+						} else {
+							allTailPositions[j].y--
+						}
+						if allTailPositions[j-1].x != allTailPositions[j].x {
+							allTailPositions[j].x = allTailPositions[j-1].x
+						}
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						if allTailPositions[j].x < allTailPositions[j-1].x {
+							allTailPositions[j].x++
+						} else {
+							allTailPositions[j].x--
+						}
+						if allTailPositions[j-1].y != allTailPositions[j].y {
+							allTailPositions[j].y = allTailPositions[j-1].y
+						}
+						tailMoved = true
+					}
+					if tailMoved {
+						if i == 9 {
+							if !tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] {
+								fmt.Println("TAIL POS: ", allTailPositions[j].x, " ", allTailPositions[j].y)
+								tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] = true
+								tailPosVisitedTotal++
+							}
+						}
+					}
+				}
+			}
+		case "R":
+			fmt.Println("MOVE RIGHT: ", numSteps)
+			for i := 0; i < numSteps; i++ {
+				allTailPositions[0].x++
+				for j := 1; j < len(allTailPositions); j++ {
+					tailMoved := false
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 &&
+						math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						allTailPositions[j].x = (allTailPositions[j-1].x + allTailPositions[j].x) / 2
+						allTailPositions[j].y = (allTailPositions[j-1].y + allTailPositions[j].y) / 2
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 {
+						if allTailPositions[j].y < allTailPositions[j-1].y {
+							allTailPositions[j].y++
+						} else {
+							allTailPositions[j].y--
+						}
+						if allTailPositions[j-1].x != allTailPositions[j].x {
+							allTailPositions[j].x = allTailPositions[j-1].x
+						}
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						if allTailPositions[j].x < allTailPositions[j-1].x {
+							allTailPositions[j].x++
+						} else {
+							allTailPositions[j].x--
+						}
+						if allTailPositions[j-1].y != allTailPositions[j].y {
+							allTailPositions[j].y = allTailPositions[j-1].y
+						}
+						tailMoved = true
+					}
+					if tailMoved {
+						if i == 9 {
+							if !tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] {
+								fmt.Println("TAIL POS: ", allTailPositions[j].x, " ", allTailPositions[j].y)
+								tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] = true
+								tailPosVisitedTotal++
+							}
+						}
+					}
+				}
+			}
+		case "D":
+			fmt.Println("MOVE DOWN: ", numSteps)
+			for i := 0; i < numSteps; i++ {
+				allTailPositions[0].y--
+				for j := 1; j < len(allTailPositions); j++ {
+					tailMoved := false
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 &&
+						math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						allTailPositions[j].x = (allTailPositions[j-1].x + allTailPositions[j].x) / 2
+						allTailPositions[j].y = (allTailPositions[j-1].y + allTailPositions[j].y) / 2
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 {
+						if allTailPositions[j].y < allTailPositions[j-1].y {
+							allTailPositions[j].y++
+						} else {
+							allTailPositions[j].y--
+						}
+						if allTailPositions[j-1].x != allTailPositions[j].x {
+							allTailPositions[j].x = allTailPositions[j-1].x
+						}
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						if allTailPositions[j].x < allTailPositions[j-1].x {
+							allTailPositions[j].x++
+						} else {
+							allTailPositions[j].x--
+						}
+						if allTailPositions[j-1].y != allTailPositions[j].y {
+							allTailPositions[j].y = allTailPositions[j-1].y
+						}
+						tailMoved = true
+					}
+					if tailMoved {
+						if i == 9 {
+							if !tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] {
+								fmt.Println("TAIL POS: ", allTailPositions[j].x, " ", allTailPositions[j].y)
+								tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] = true
+								tailPosVisitedTotal++
+							}
+						}
+					}
+				}
+			}
+		case "L":
+			fmt.Println("MOVE LEFT: ", numSteps)
+			for i := 0; i < numSteps; i++ {
+				allTailPositions[0].x--
+				for j := 1; j < len(allTailPositions); j++ {
+					tailMoved := false
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 &&
+						math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						allTailPositions[j].x = (allTailPositions[j-1].x + allTailPositions[j].x) / 2
+						allTailPositions[j].y = (allTailPositions[j-1].y + allTailPositions[j].y) / 2
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].x-allTailPositions[j].x)) == 2 {
+						if allTailPositions[j].x < allTailPositions[j-1].x {
+							allTailPositions[j].x++
+						} else {
+							allTailPositions[j].x--
+						}
+						if allTailPositions[j-1].y != allTailPositions[j].y {
+							allTailPositions[j].y = allTailPositions[j-1].y
+						}
+						tailMoved = true
+					}
+					if math.Abs(float64(allTailPositions[j-1].y-allTailPositions[j].y)) == 2 {
+						if allTailPositions[j].y < allTailPositions[j-1].y {
+							allTailPositions[j].y++
+						} else {
+							allTailPositions[j].y--
+						}
+						if allTailPositions[j-1].x != allTailPositions[j].x {
+							allTailPositions[j].x = allTailPositions[j-1].x
+						}
+						tailMoved = true
+					}
+					if tailMoved {
+						if j == 9 {
+							if !tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] {
+								fmt.Println("TAIL POS: ", allTailPositions[j].x, " ", allTailPositions[j].y)
+								tailPositions[fmt.Sprintf("%d_%d", allTailPositions[j].x, allTailPositions[j].y)] = true
+								tailPosVisitedTotal++
+							}
+						}
+					}
+				}
+				// fmt.Println("------- STEP ", i, " --------")
+				// fmt.Println("HEAD POSITION: ", allTailPositions[0].x, " ", allTailPositions[0].y)
+				// fmt.Println("SECOND POSITION: ", allTailPositions[1].x, " ", allTailPositions[1].y)
+				// fmt.Println("THIRD POSITION: ", allTailPositions[2].x, " ", allTailPositions[2].y)
+				// fmt.Println("FOURTH POSITION: ", allTailPositions[3].x, " ", allTailPositions[3].y)
+				// fmt.Println("FIFTH POSITION: ", allTailPositions[4].x, " ", allTailPositions[4].y)
+				// fmt.Println("SIXTH POSITION: ", allTailPositions[5].x, " ", allTailPositions[5].y)
+				// fmt.Println("SEVENTH POSITION: ", allTailPositions[6].x, " ", allTailPositions[6].y)
+				// fmt.Println("EIGHTH POSITION: ", allTailPositions[7].x, " ", allTailPositions[7].y)
+				// fmt.Println("NINTH POSITION: ", allTailPositions[8].x, " ", allTailPositions[8].y)
+				// fmt.Println("TAIL POSITION: ", allTailPositions[9].x, " ", allTailPositions[9].y)
+			}
+		default:
+			fmt.Println("UNKNOWN DIRECTION: ", direction)
 		}
-		rowNum++
+		fmt.Println("HEAD POSITION: ", allTailPositions[0].x, " ", allTailPositions[0].y)
+		fmt.Println("SECOND POSITION: ", allTailPositions[1].x, " ", allTailPositions[1].y)
+		fmt.Println("THIRD POSITION: ", allTailPositions[2].x, " ", allTailPositions[2].y)
+		fmt.Println("FOURTH POSITION: ", allTailPositions[3].x, " ", allTailPositions[3].y)
+		fmt.Println("FIFTH POSITION: ", allTailPositions[4].x, " ", allTailPositions[4].y)
+		fmt.Println("SIXTH POSITION: ", allTailPositions[5].x, " ", allTailPositions[5].y)
+		fmt.Println("SEVENTH POSITION: ", allTailPositions[6].x, " ", allTailPositions[6].y)
+		fmt.Println("EIGHTH POSITION: ", allTailPositions[7].x, " ", allTailPositions[7].y)
+		fmt.Println("NINTH POSITION: ", allTailPositions[8].x, " ", allTailPositions[8].y)
+		fmt.Println("TAIL POSITION: ", allTailPositions[9].x, " ", allTailPositions[9].y)
 	}
 
-	if part == 1 {
-		// Iterate the tree array
-		for idx, row := range treeArray {
-			if idx == 0 || idx == len(treeArray)-1 {
-				for i := 0; i < len(row); i++ {
-					treeArray[idx][i].visible = true
-					numTreesVisible++
-				}
-				continue
-			}
+	fmt.Println("TAIL POSITIONS: ", tailPositions)
 
-			numTreesVisible++
-			treeArray[idx][0].visible = true
-			for i := 1; i < len(row)-1; i++ {
-				// row
-				leftRow := append([]Tree{}, row[0:i]...)
-				sort.Slice(leftRow, func(k, l int) bool {
-					return leftRow[k].height < leftRow[l].height
-				})
-
-				if leftRow[len(leftRow)-1].height < row[i].height {
-					treeArray[idx][i].visible = true
-					numTreesVisible++
-					continue
-				}
-
-				rightRow := append([]Tree{}, row[i+1:]...)
-				sort.Slice(rightRow, func(k, l int) bool {
-					return rightRow[k].height < rightRow[l].height
-				})
-
-				if rightRow[len(rightRow)-1].height < row[i].height {
-					treeArray[idx][i].visible = true
-					numTreesVisible++
-					continue
-				}
-
-				// column
-				var topColumn []Tree
-				for ii := 0; ii < idx; ii++ {
-					topColumn = append(topColumn, treeArray[ii][i])
-				}
-				sort.Slice(topColumn, func(k, l int) bool {
-					return topColumn[k].height < topColumn[l].height
-				})
-
-				if topColumn[len(topColumn)-1].height < row[i].height {
-					treeArray[idx][i].visible = true
-					numTreesVisible++
-					continue
-				}
-
-				var bottomColumn []Tree
-				for ii := idx + 1; ii < len(treeArray); ii++ {
-					bottomColumn = append(bottomColumn, treeArray[ii][i])
-				}
-				sort.Slice(bottomColumn, func(k, l int) bool {
-					return bottomColumn[k].height < bottomColumn[l].height
-				})
-
-				if bottomColumn[len(bottomColumn)-1].height < row[i].height {
-					treeArray[idx][i].visible = true
-					numTreesVisible++
-					continue
-				}
-
-			}
-			numTreesVisible++
-			treeArray[idx][len(row)-1].visible = true
-		}
-		return numTreesVisible
-	} else {
-
-		// Iterate the tree array
-		for idx, row := range treeArray {
-			if idx == 0 || idx == len(treeArray)-1 {
-				continue
-			}
-			for i := 1; i < len(row)-1; i++ {
-				// row
-				leftTreesSeen := 0
-				leftRow := append([]Tree{}, row[0:i]...)
-
-				for j := i - 1; j >= 0; j-- {
-					if leftRow[j].height < row[i].height {
-						leftTreesSeen++
-					} else {
-						leftTreesSeen++
-						break
-					}
-				}
-
-				rightTreesSeen := 0
-				rightRow := append([]Tree{}, row[i+1:]...)
-
-				for j := 0; j <= len(rightRow)-1; j++ {
-					if rightRow[j].height < row[i].height {
-						rightTreesSeen++
-					} else {
-						rightTreesSeen++
-						break
-					}
-				}
-
-				// column
-				topTreesSeen := 0
-				var topColumn []Tree
-				for ii := 0; ii < idx; ii++ {
-					topColumn = append(topColumn, treeArray[ii][i])
-				}
-
-				for j := idx - 1; j >= 0; j-- {
-					if topColumn[j].height < row[i].height {
-						topTreesSeen++
-					} else {
-						topTreesSeen++
-						break
-					}
-				}
-
-				bottomTreesSeen := 0
-				var bottomColumn []Tree
-				for ii := idx + 1; ii < len(treeArray); ii++ {
-					bottomColumn = append(bottomColumn, treeArray[ii][i])
-				}
-				for j := 0; j <= len(bottomColumn)-1; j++ {
-					if bottomColumn[j].height < row[i].height {
-						bottomTreesSeen++
-					} else {
-						bottomTreesSeen++
-						break
-					}
-				}
-				treeScenicScore := leftTreesSeen * rightTreesSeen * topTreesSeen * bottomTreesSeen
-				if treeScenicScore > maxScenicScore {
-					maxScenicScore = treeScenicScore
-				}
-			}
-
-		}
-		return maxScenicScore
-	}
+	return tailPosVisitedTotal
 
 }
 
 func main() {
 	fmt.Println("PART 1 INDEX: ", findMarker(1))
-	fmt.Println("PART 2 INDEX: ", findMarker(2))
+	// fmt.Println("PART 2 INDEX: ", findMarker(2))
 }
